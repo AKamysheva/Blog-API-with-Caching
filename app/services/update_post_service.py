@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.cache import CacheService
 from app.models import Post
+from app.schemas.schemas import PostOut
 
 
 async def update_post_service(
@@ -18,4 +19,4 @@ async def update_post_service(
 
     await db.commit()
     await cache.invalidate_post(post_id)
-    return post_db
+    return PostOut.model_validate(post_db)
