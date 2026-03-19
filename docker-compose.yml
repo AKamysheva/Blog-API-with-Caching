@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17
+    container_name: db_posts
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./app/.env
+
+  web:
+    image: system_with_cache:latest
+    container_name: web_system_with_cache
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    env_file:
+      - ./app/.env
+    command: >
+      bash -c "
+      poetry run alembic upgrade head &&
+      poetry run uvicorn app.main:app --host 0.0.0.0 --port 8400
+      "
+    ports:
+      - "8400:8400"
+
+  redis:
+    image: "redis:latest"
+
+
+volumes:
+  postgres_data:
